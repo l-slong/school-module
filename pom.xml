@@ -71,6 +71,7 @@
     <build>
         <resources>
             <!--使用mybaties用的到。sql语句是xml的 解决mybatis编译后的XML文件找不到的问题-->
+            <!--build 时扫描下面的文件-->
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
