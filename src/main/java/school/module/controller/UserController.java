@@ -17,12 +17,13 @@ import javax.servlet.http.HttpServletRequest;
  * @Date: 2020-09-19  13:01
  */
 @RestController
+@RequestMapping(value = "/api")
 public class UserController {
 
     @Autowired
     private UserMapper userMapper;
 
-    @RequestMapping(value = "/api/user", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user", method = RequestMethod.PUT)
     public RespBean register(String account,String password,HttpServletRequest request) {
 
         if(null != userMapper.selectByAccount(account)){
@@ -36,5 +37,10 @@ public class UserController {
             return new RespBean("success","注册成功");
         }
         return new RespBean("failed","注册失败");
+    }
+
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
+    public String getInfo() {
+        return "ok";
     }
 }

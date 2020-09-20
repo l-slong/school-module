@@ -7,10 +7,13 @@ public class User {
 
     private String password;
 
-    public User(Integer id, String account, String password) {
+    private String tokenVersion;
+
+    public User(Integer id, String account, String password, String tokenVersion) {
         this.id = id;
         this.account = account;
         this.password = password;
+        this.tokenVersion = tokenVersion;
     }
 
     public User() {
@@ -39,5 +42,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password == null ? null : password.trim();
+    }
+
+    public String getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(String tokenVersion) {
+        this.tokenVersion = tokenVersion == null ? null : tokenVersion.trim();
     }
 }

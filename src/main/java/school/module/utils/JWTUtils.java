@@ -1,9 +1,13 @@
 package school.module.utils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import school.module.config.JWTConfig;
 
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
+import school.module.dao.UserMapper;
+import school.module.entity.User;
+
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
@@ -17,20 +21,36 @@ import java.util.Date;
 @Component
 public class JWTUtils {
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private JWTConfig jwtConfig;
+
     public static final String AUTH_HEADER_KEY = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    public static String createJWT(String account, JWTConfig jwtConfig) {
+    public String createJWT(String account) {
+        User user = userMapper.selectByAccount(account);
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         long nowMillis = System.currentTimeMillis();
+        String tokenVersion = Long.toString(nowMillis);
+        if(user.getTokenVersion() != null && !user.getTokenVersion().equals("")) {
+            tokenVersion = user.getTokenVersion();
+        } else {
+            user.setTokenVersion(tokenVersion);
+            userMapper.updateByPrimaryKeySelective(user);
+        }
         Date now = new Date(nowMillis);
 
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(jwtConfig.getBase64Secret());
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
         JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT")
                 .claim("account", account)
+                .claim("token_version", tokenVersion)
                 .setIssuedAt(new Date())
                 .setAudience(jwtConfig.getName()).signWith(signingKey);
+
         long TTLMillis = jwtConfig.getExpiresSecond() * 1000;
         if (TTLMillis >= 0) {
             long expMillis = nowMillis + TTLMillis;
@@ -41,7 +61,7 @@ public class JWTUtils {
         return builder.compact();
     }
 
-    public static Claims parseJWT(String token, JWTConfig jwtConfig) {
+    public Claims parseJWT(String token) {
         try {
             byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(jwtConfig.getBase64Secret());
             SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;

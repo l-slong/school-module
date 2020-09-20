@@ -1,16 +1,12 @@
 package school.module.interceptor;
 
 import io.jsonwebtoken.Claims;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import school.module.config.JWTConfig;
+import school.module.dao.UserMapper;
+import school.module.entity.User;
 import school.module.utils.JWTUtils;
 
 import javax.servlet.http.Cookie;
@@ -26,23 +22,28 @@ import java.io.IOException;
 
 public class JWTInterceptor extends HandlerInterceptorAdapter{
     @Autowired
-    private JWTConfig jwtConfig;
+    private JWTUtils jwtUtils;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         // 先遍历 cookie 查询 token
         String token = "";
-        for(Cookie cookie: request.getCookies()) {
-            if(cookie.getName().equals("token")) {
-                token = cookie.getValue();
-                break;
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null) {
+            for(Cookie cookie: cookies) {
+                if(cookie.getName().equals("token")) {
+                    token = cookie.getValue();
+                    break;
+                }
             }
-        };
+        }
 
         // cookie 中无 token 时再尝试从 Header 中获取
         if(token.equals("")) {
-            // 获取请求头信息authorization信息
             String authHeader = request.getHeader(JWTUtils.AUTH_HEADER_KEY);
             if (authHeader == null || !authHeader.startsWith(JWTUtils.TOKEN_PREFIX)) {
                 responseLoginErr(response, "Unauthorized");
@@ -51,10 +52,16 @@ public class JWTInterceptor extends HandlerInterceptorAdapter{
             token = authHeader.substring(JWTUtils.TOKEN_PREFIX.length());
         }
 
-        Claims claims = JWTUtils.parseJWT(token, jwtConfig);
+        Claims claims = jwtUtils.parseJWT(token);
 
         if (claims == null) {
             responseLoginErr(response, "Token is invalid");
+            return false;
+        }
+
+        User user = userMapper.selectByAccount((String) claims.get("account"));
+        if (!user.getTokenVersion().equals((String) claims.get("token_version"))) {
+            responseLoginErr(response, "your password is updated, please login again");
             return false;
         }
         return true;
