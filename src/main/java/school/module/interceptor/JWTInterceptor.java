@@ -6,6 +6,7 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import school.module.Service.UserService;
+import school.module.config.ResponseCode;
 import school.module.entity.User;
 import school.module.utils.JWTUtils;
 
@@ -70,7 +71,7 @@ public class JWTInterceptor extends HandlerInterceptorAdapter{
 
     private void responseLoginErr(HttpServletResponse response, String info) throws JSONException, IOException {
         JSONObject body = new JSONObject();
-        body.put("status", "err");
+        body.put("status", ResponseCode.FAILED);
         body.put("msg", info);
         response.getWriter().append(body.toString());
         response.setHeader("Content-type", "application/json");

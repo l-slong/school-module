@@ -10,6 +10,13 @@ package school.module.bean;
 public class RespBean {
     private String status;
     private String msg;
+    private Object data;
+
+    public RespBean(String status, String msg, Object data) {
+        this.status = status;
+        this.msg = msg;
+        this.data = data;
+    }
 
     public RespBean() {
     }
@@ -34,5 +41,13 @@ public class RespBean {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 }
