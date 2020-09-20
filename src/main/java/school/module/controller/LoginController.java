@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.module.dao.UserMapper;
 import school.module.entity.User;
 import school.module.utils.JWTUtils;
-import school.module.utils.RespBean;
+import school.module.bean.RespBean;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

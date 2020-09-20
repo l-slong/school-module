@@ -1,11 +1,11 @@
 package school.module.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import school.module.Service.UserService;
 import school.module.config.JWTConfig;
 
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
-import school.module.dao.UserMapper;
 import school.module.entity.User;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -22,7 +22,7 @@ import java.util.Date;
 public class JWTUtils {
 
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
 
     @Autowired
     private JWTConfig jwtConfig;
@@ -31,7 +31,7 @@ public class JWTUtils {
     public static final String TOKEN_PREFIX = "Bearer ";
 
     public String createJWT(String account) {
-        User user = userMapper.selectByAccount(account);
+        User user = userService.selectByAccount(account);
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         long nowMillis = System.currentTimeMillis();
         String tokenVersion = Long.toString(nowMillis);
@@ -39,7 +39,7 @@ public class JWTUtils {
             tokenVersion = user.getTokenVersion();
         } else {
             user.setTokenVersion(tokenVersion);
-            userMapper.updateByPrimaryKeySelective(user);
+            userService.updateByPrimaryKeySelective(user);
         }
         Date now = new Date(nowMillis);
 

@@ -1,4 +1,4 @@
-package school.module.utils;
+package school.module.bean;
 
 /**
  * 描述：用于简单的操作，封装返回请求的结果和返回信息

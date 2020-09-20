@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import school.module.dao.UserMapper;
+import school.module.Service.UserService;
 import school.module.entity.User;
 import school.module.utils.JWTUtils;
 
@@ -25,7 +25,7 @@ public class JWTInterceptor extends HandlerInterceptorAdapter{
     private JWTUtils jwtUtils;
 
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -59,11 +59,12 @@ public class JWTInterceptor extends HandlerInterceptorAdapter{
             return false;
         }
 
-        User user = userMapper.selectByAccount((String) claims.get("account"));
+        User user = userService.selectByAccount((String) claims.get("account"));
         if (!user.getTokenVersion().equals((String) claims.get("token_version"))) {
             responseLoginErr(response, "your password is updated, please login again");
             return false;
         }
+
         return true;
     }
 
