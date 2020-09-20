@@ -27,7 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
         InterceptorRegistration registration = registry.addInterceptor(getJWTInterceptor());
         registration.addPathPatterns("/**");
         registration.excludePathPatterns(
-                "/api/**/login"
+                "/api/login",
+                "/api/register"
         );
     }
 }

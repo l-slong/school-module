@@ -21,18 +21,19 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
-    public int deleteByPrimaryKey(Integer id) {
-        return userMapper.deleteByPrimaryKey(id);
+    @CacheEvict(value = "user", key = "#user.account")
+    public int deleteByPrimaryKey(User user) {
+        return userMapper.deleteByPrimaryKey(user.getId());
     }
 
     @Override
-    public int insert(User record) {
-        return userMapper.insert(record);
+    public int insert(User user) {
+        return userMapper.insert(user);
     }
 
     @Override
-    public int insertSelective(User record) {
-        return userMapper.insertSelective(record);
+    public int insertSelective(User user) {
+        return userMapper.insertSelective(user);
     }
 
     @Override
@@ -54,7 +55,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateByPrimaryKey(User record) {
+    @CacheEvict(value = "user", key = "#user.account")
+    public int updateByPrimaryKey(User user) {
         return 0;
     }
 }

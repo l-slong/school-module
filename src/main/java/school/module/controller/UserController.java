@@ -1,5 +1,6 @@
 package school.module.controller;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,9 @@ import school.module.config.ResponseCode;
 import school.module.dao.UserMapper;
 import school.module.entity.User;
 import school.module.bean.RespBean;
+import school.module.utils.JWTUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -26,7 +29,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/user", method = RequestMethod.PUT)
+    @Autowired
+    private JWTUtils jwtUtils;
+
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
     public RespBean register(@RequestBody User user, HttpServletRequest request) {
         if(null != userService.selectByAccount(user.getAccount())){
             return new RespBean(ResponseCode.FAILED,"该账户已存在");
@@ -40,12 +46,26 @@ public class UserController {
 
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
-    public Object findByAccount( String account, HttpServletRequest request) {
+    public Object findByAccount(HttpServletRequest request) {
 
-        if(null != userService.selectByAccount(account)){
-            return new RespBean(ResponseCode.FAILED,"该账户不存在");
+        String account = "";
+        String token = "";
+        for(Cookie cookie: request.getCookies()) {
+            if(cookie.getName().equals("token")) {
+                token = cookie.getValue();
+            }
         }
-       return new RespBean(ResponseCode.FAILED,"该账户不存在",userService.selectByAccount(account));
-    }
+        Claims claims = jwtUtils.parseJWT(token);
+        if(claims != null) {
+            account = (String) claims.get("account");
+        } else {
+            return new RespBean(ResponseCode.FAILED,"查询参数错误");
+        }
 
+        User user = userService.selectByAccount(account);
+        if(user == null) {
+            return new RespBean(ResponseCode.FAILED,"用户不存在");
+        }
+        return new RespBean(ResponseCode.SUCCESS,"", user);
+    }
 }

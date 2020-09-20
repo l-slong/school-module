@@ -12,7 +12,7 @@ import school.module.entity.User;
 @Service
 public interface UserService {
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(User user);
 
     int insert(User record);
 
@@ -22,7 +22,7 @@ public interface UserService {
 
     User selectByAccount(String account);
 
-    int updateByPrimaryKeySelective(User record);
+    int updateByPrimaryKeySelective(User user);
 
-    int updateByPrimaryKey(User record);
+    int updateByPrimaryKey(User user);
 }
